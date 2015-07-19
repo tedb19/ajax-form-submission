@@ -5,6 +5,13 @@ $(document).ready(function() {
         console.log("form submitted!")  // sanity check
         create_post();
     });
+
+    $('#talk').on('click', 'a[id^=delete-post-]', function (){
+        var post_primary_key = $(this).attr('id').split('-')[2];
+        console.log(post_primary_key) //sanity check
+        delete_post(post_primary_key);
+
+    })
 });
 
 
@@ -17,7 +24,7 @@ function create_post() {
         type: 'POST',
         data: {the_post: $post_text.val()},
         success: function(json){
-            $("#talk").prepend("<li><strong>"+json.text+"</strong> - <em> "+json.author+"</em> - <span> "+json.created+"</span></li>");
+            $("#talk").prepend("<li id='post-"+ json.postpk +"'><strong>"+json.text+"</strong> - <em> "+json.author+"</em> - <span> "+json.created+"</span>- <a id='delete-post-"+json.postpk+"'>delete me</a></li>");
             $post_text.val('');//clear the text field
 
         },
@@ -28,6 +35,34 @@ function create_post() {
         }
     });
 };
+
+/*
+* AJAX for deletion
+* For browsers that dont support 'DELETE' http method, 
+* consider POST Tunelling (https://gist.github.com/mjhea0/43d7b4285c59c2083123)
+*/
+function delete_post(post_primary_key){
+    if(confirm('are you sure you want to delete?') == true){
+        $.ajax({
+            url: 'delete_post/', //endpoint
+            type: "DELETE", //http method
+            data: {postpk: post_primary_key},
+            success: function(json) {
+                //hide the post
+                $('#post-'+post_primary_key).hide();
+                console.log("post deletion successful");
+            },
+            error: function(xhr, errmsg, err){
+                // Show an error
+                $('#results').html("<div class='alert-box alert radius' data-alert>"+
+                "Oops! We have encountered an error. <a href='#' class='close'>&times;</a></div>"); // add error to the dom
+                console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+            }
+        })
+    } else{
+        return false;
+    }
+}
 
 // This function gets cookie with a given name
 function getCookie(name) {
