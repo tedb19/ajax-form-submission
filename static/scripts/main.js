@@ -5,12 +5,14 @@ $(document).ready(function() {
         console.log("form submitted!")  // sanity check
         create_post();
     });
-
+    /*
+    * Here we use the jquery 'starts with' selector (i.e. ^) to
+    * select all anchor tags with an id that starts with 'delete-post-'
+    */
     $('#talk').on('click', 'a[id^=delete-post-]', function (){
         var post_primary_key = $(this).attr('id').split('-')[2];
         console.log(post_primary_key) //sanity check
         delete_post(post_primary_key);
-
     })
 });
 
